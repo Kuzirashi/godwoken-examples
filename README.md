@@ -1,5 +1,9 @@
 # Godwoken Examples
 
+## [**Please read this instruction for complete guide how to run Godwoken with Polyjuice**.](RUN_COMPLETE_EXAMPLE.md)
+
+---
+
 This demo shows of how to use [Godwoken](https://github.com/nervosnetwork/godwoken).
 
 The demo provides the following functionalities:
