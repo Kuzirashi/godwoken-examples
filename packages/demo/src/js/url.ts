@@ -13,3 +13,5 @@ const ckbUrlIndex = getRandomInt(ckbUrls.length);
 export const ckbUrl = ckbUrls[ckbUrlIndex];
 
 export const pwCollectorUrl = Config.pw.pw_collector_url;
+
+console.log('ckbUrl', { ckbUrl, pwCollectorUrl } );

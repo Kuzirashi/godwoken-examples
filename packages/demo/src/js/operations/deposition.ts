@@ -35,7 +35,9 @@ export async function send(
   const txHash: HexString = await pwcore.send(
     address,
     new Amount(amount.toString()),
-    feeRate
+    {
+      feeRate
+    }
   );
 
   return txHash;
@@ -62,7 +64,7 @@ export async function sendSudt(
     new Amount(amount, AmountUnit.shannon),
     true,
     undefined,
-    feeRate
+    { feeRate }
   );
 
   return txHash;

@@ -16,7 +16,7 @@ The demo provides the following functionalities:
 ## Install dependencies
 
 ```bash
-yarn run bootstrap
+yarn
 ```
 
 ## Update Demo Configs

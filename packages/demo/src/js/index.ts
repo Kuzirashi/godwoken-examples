@@ -1,6 +1,4 @@
-import PWCore, { EthProvider, PwCollector } from "@lay2/pw-core";
 import { getCurrentEthAccount } from "./utils/eth_account";
-import { ckbUrl, pwCollectorUrl } from "./url";
 import { displayBalance } from "./pages/balance";
 import { displayEthAddress } from "./pages/display_eth_address";
 import { depositCKB, depositSudt, initDepositSudtPage } from "./pages/deposit";
@@ -14,14 +12,7 @@ import { godwokenSudtTransfer } from "./pages/sudt_transfer";
 import { godwokenWithdraw } from "./pages/withdraw";
 import { Hash } from "@ckb-lumos/base";
 import { getAccountIdByEthAddress, getLayer2LockHash } from "./polyjuice";
-
-export async function initPWCore() {
-  const pwcore = await new PWCore(ckbUrl).init(
-    new EthProvider(),
-    new PwCollector(pwCollectorUrl)
-  );
-  return pwcore;
-}
+import { initPWCore } from "./pw";
 
 async function withPw(currentEthAddress: string) {
   const pwcore = await initPWCore();
