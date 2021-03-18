@@ -150,7 +150,7 @@ TOP=TOP_DIR; LUMOS_CONFIG_FILE=$TOP/lumos-config.json node packages/runner/lib/i
 
 ```
 cd ~/projects
-git clone git@github.com:nervosnetwork/godwoken-examples.git
+git clone git@github.com:Kuzirashi/godwoken-examples.git
 cd godwoken-examples
 yarn
 TOP=TOP_DIR; cp $TOP/runner_config.json packages/demo/src/configs/runner_config.json
