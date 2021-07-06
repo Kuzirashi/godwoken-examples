@@ -8,6 +8,65 @@ import { Godwoken } from "@godwoken-examples/godwoken";
 import { asyncSleep } from "../modules/utils";
 import { Hash } from "@ckb-lumos/base";
 
+async function indexerReady(indexer: any, updateProgress=((_indexerTip: bigint, _rpcTip: bigint)=>{}), options: any)
+{
+	const defaults = {blockDifference: 0, timeoutMs: 300_000, recheckMs: 500};
+	options = {...defaults, ...options};
+
+	return new Promise(async (resolve, reject) =>
+	{
+		let timedOut = false;
+		const timeoutTimer = (options.timeoutMs !== 0) ? setTimeout(()=>{timedOut = true;}, options.timeoutMs) : false;
+		const rpc = new RPC(indexer.uri);
+
+		let indexerFailureCount = 0;
+		let rpcFailureCount = 0;
+
+		while(true)
+		{
+			if(timedOut)
+				return reject(Error("Transaction timeout."));
+
+			const indexerTipObj = await indexer.tip();
+			if(!indexerTipObj)
+			{
+				if(++indexerFailureCount >= 5)
+					return reject(Error("Indexer gave an unexpected response."));
+
+				await new Promise((resolve)=>setTimeout(resolve, 200));
+				continue;
+			}
+			
+			const rpcResponse = await rpc.get_tip_block_number();
+			if(!rpcResponse)
+			{
+				if(++rpcFailureCount >= 5)
+					return reject(Error("RPC gave an unexpected response."));
+
+				await new Promise((resolve)=>setTimeout(resolve, 200));
+				continue;
+			}
+	
+			const indexerTip = BigInt(indexerTipObj.block_number);
+			const rpcTip = BigInt(rpcResponse);
+
+			if(indexerTip >= (rpcTip - BigInt(options.blockDifference)))
+			{
+				if(timeoutTimer)
+					clearTimeout(timeoutTimer);
+
+				break;
+			}
+
+			updateProgress(indexerTip, rpcTip);
+
+			await new Promise(resolve=>setTimeout(resolve, options.recheckMs));
+		}
+
+		return resolve(null);
+	});
+}
+
 export async function initConfigAndSync(
   ckbRpc: string,
   indexerPath: string
@@ -27,9 +86,19 @@ export async function initConfigAndSync(
   const indexer = new Indexer(ckbRpc, indexerPath);
   indexer.startForever();
 
-  console.log("waiting for sync ...");
-  await indexer.waitForSync();
-  console.log("synced ...");
+  console.log("Indexer is syncing. Please wait.");
+  let lastMessage = '';
+	await indexerReady(indexer, (indexerTip: bigint, rpcTip: bigint)=>
+    {
+      const newMessage = `Syncing ${Math.floor(Number(indexerTip)/Number(rpcTip)*10_000)/100}% completed.`;
+      if (lastMessage !== newMessage) {
+        console.log(newMessage);
+        lastMessage = newMessage;
+      }
+    },
+    {timeoutMs: 0, recheckMs: 800}
+  );
+  console.log("Indexer synchronized.");
   return indexer;
 }
 

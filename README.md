@@ -63,3 +63,13 @@ Run `node ./packages/tools/lib/polyjuice-cli.js --help` to see how to `creator c
 node ./packages/tools/lib/polyjuice-cli.js --help # for devnet
 ENABLE_TESTNET_MODE=true node ./packages/tools/lib/polyjuice-cli.js --help # for testnet
 ```
+
+## Use testnet indexer data checkpoint
+
+If you want to make syncing testnet indexer-data process faster you can use the following command which will download and extract checkpoint data provided by Nervos:
+
+```
+sudo apt-get install p7zip-full
+chmod +x get-testnet-checkpoint-data.sh
+./get-testnet-checkpoint-data.sh
+```
