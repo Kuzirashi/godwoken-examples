@@ -116,6 +116,8 @@ export const run = async (program: commander.Command) => {
   const godwoken = new Godwoken(program.parent.godwokenRpc);
 
   console.log("using eth address:", ethAddress);
+  console.log("using ckb address:", ckbAddress);
+  
   try {
     const txHash: Hash = await sendTx(
       deploymentConfig,
