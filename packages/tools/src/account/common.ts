@@ -33,7 +33,7 @@ async function indexerReady(indexer: any, updateProgress=((_indexerTip: bigint, 
 				if(++indexerFailureCount >= 5)
 					return reject(Error("Indexer gave an unexpected response."));
 
-				await new Promise((resolve)=>setTimeout(resolve, 200));
+				await new Promise((resolve)=>setTimeout(resolve, 1000));
 				continue;
 			}
 			
@@ -43,7 +43,7 @@ async function indexerReady(indexer: any, updateProgress=((_indexerTip: bigint, 
 				if(++rpcFailureCount >= 5)
 					return reject(Error("RPC gave an unexpected response."));
 
-				await new Promise((resolve)=>setTimeout(resolve, 200));
+				await new Promise((resolve)=>setTimeout(resolve, 1000));
 				continue;
 			}
 	
