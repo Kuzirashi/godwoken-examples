@@ -116,5 +116,4 @@ config.json
 lumos-config.json
 
 packages/polyjuice/lib
-http:*
 *.7z
