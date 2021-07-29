@@ -32,6 +32,10 @@ program
     "-l, --eth-address <args>",
     "Eth address (layer2 lock args, using --private-key value to calculate if not provided)"
   )
+  .option(
+    "-t, --tron-address <args>",
+    "Tron address"
+  )
   .action(depositRun);
 
 program

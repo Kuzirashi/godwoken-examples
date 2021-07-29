@@ -2,7 +2,7 @@ import {
   DeploymentConfig,
   deploymentConfig,
 } from "../modules/deployment-config";
-import { HexString, Script, Hash, utils } from "@ckb-lumos/base";
+import { HexString, Script, Hash, utils, HashType } from "@ckb-lumos/base";
 import { Indexer } from "@ckb-lumos/indexer";
 import {
   TransactionSkeleton,
@@ -125,6 +125,30 @@ export const run = async (program: commander.Command) => {
   const indexerPath = program.indexerPath;
   const indexer = await initConfigAndSync(program.rpc, indexerPath);
 
+//   const queryOptions = {
+//     lock: {
+//       code_hash: '0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8',
+//       hash_type: 'type' as HashType,
+//       args: '0x5e518242edf98063d632c1f7ce5716381b724653'
+//     },
+//     // type: 'empty' as const
+//   };
+//   const collector = indexer.collector(queryOptions);
+//   const collected = [];
+
+//   async function *collect() {
+//     for await (const inputCell of collector.collect()) {
+//         yield inputCell;
+//     }
+// }
+
+//   for await (const inputCell of collect()) {
+//     collected.push(inputCell);
+//   }
+
+//   console.log(collected);
+
+//   process.exit();
   const privateKey = program.privateKey;
   const ckbAddress = privateKeyToCkbAddress(privateKey);
   const ethAddress = program.ethAddress || privateKeyToEthAddress(privateKey);

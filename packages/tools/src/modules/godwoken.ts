@@ -1,4 +1,4 @@
-import { Hash, HexString, utils } from "@ckb-lumos/base";
+import { Hash, HexNumber, HexString, utils } from "@ckb-lumos/base";
 import {
   Godwoken,
   Uint32,
@@ -232,6 +232,17 @@ export function ethAddressToScriptHash(ethAddress: HexString): Hash {
   return scriptHash;
 }
 
+export function tronAddressToScriptHash(tronAddress: HexString): Hash {
+  const script = {
+    ...deploymentConfig.tron_account_lock,
+    args: ROLLUP_TYPE_HASH + tronAddress.slice(2),
+  };
+
+  const scriptHash = utils.computeScriptHash(script);
+
+  return scriptHash;
+}
+
 export async function getBalanceByScriptHash(
   godwoken: Godwoken,
   sudtId: number,
@@ -270,4 +281,28 @@ export async function parseAccountToId(
 
   // if account is id
   return +account;
+}
+
+export async function getAccountIdByContractAddress(godwoken: Godwoken, _address: HexString): Promise<HexNumber | undefined> {
+  // todo: support create2 address in such case that it haven't create real contract yet.
+  const address = Buffer.from(_address.slice(2), "hex");
+  if (address.byteLength !== 20)
+    throw new Error(`Invalid eth address length: ${address.byteLength}`);
+
+  if (address.equals(Buffer.from(Array(20).fill(0))))
+    // special-case: meta-contract address should return creator
+    return "0x3";
+
+  try {
+    // assume it is normal contract address, thus an godwoken-short-address
+    const script_hash = await godwoken.getScriptHashByShortAddress(_address);
+    return (await godwoken.getAccountIdByScriptHash(script_hash))?.toString();
+  } catch (error) {
+    if (
+      !JSON.stringify(error).includes(
+        "unable to fetch script hash from short address"
+      )
+    )
+      throw error;
+  }
 }

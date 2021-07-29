@@ -13,9 +13,15 @@
     "@ckb-lumos/helpers": "^0.16.0",
     "@ckb-lumos/indexer": "^0.16.0",
     "@godwoken-examples/godwoken": "^0.0.1",
+    "@polyjuice-provider/base": "0.0.1-rc5",
+    "@polyjuice-provider/godwoken": "0.0.1-rc5",
+    "@polyjuice-provider/web3": "0.0.1-rc5",
     "ckb-js-toolkit": "^0.10.2",
     "commander": "^6.2.1",
-    "secp256k1": "^4.0.2"
+    "eth-lib": "^0.1.29",
+    "secp256k1": "^4.0.2",
+    "tronweb": "^3.2.7",
+    "web3": "1.4.0"
   },
   "scripts": {
     "fmt": "prettier --write \"src/**/*.ts\" package.json",
@@ -25,5 +31,8 @@
   "devDependencies": {
     "@iarna/toml": "^2.2.5",
     "@types/secp256k1": "^4.0.2"
+  },
+  "resolutions": {
+    "@polyjuice-provider/godwoken": "0.0.1-rc5"
   }
 }

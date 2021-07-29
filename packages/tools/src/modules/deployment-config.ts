@@ -11,6 +11,7 @@ export interface DeploymentConfig {
   meta_contract_validator: Script;
   l2_sudt_validator: Script;
   eth_account_lock: Script;
+  tron_account_lock: Script;
   polyjuice_validator: Script;
   state_validator_lock: Script;
   poa_state: Script;
@@ -24,6 +25,7 @@ export interface DeploymentConfig {
   meta_contract_validator_dep: CellDep;
   l2_sudt_validator_dep: CellDep;
   eth_account_lock_dep: CellDep;
+  tron_account_lock_dep: CellDep;
   polyjuice_validator_dep: CellDep;
   state_validator_lock_dep: CellDep;
   poa_state_dep: CellDep;
@@ -54,6 +56,9 @@ export const deploymentConfig: DeploymentConfig = {
   eth_account_lock: buildScriptFromCodeHash(
     config.eth_account_lock.script_type_hash
   ),
+  tron_account_lock: buildScriptFromCodeHash(
+    config.tron_account_lock.script_type_hash
+  ),
   polyjuice_validator: buildScriptFromCodeHash(
     config.polyjuice_validator.script_type_hash
   ),
@@ -72,6 +77,7 @@ export const deploymentConfig: DeploymentConfig = {
     .cell_dep as CellDep,
   l2_sudt_validator_dep: config.l2_sudt_validator.cell_dep as CellDep,
   eth_account_lock_dep: config.eth_account_lock.cell_dep as CellDep,
+  tron_account_lock_dep: config.tron_account_lock.cell_dep as CellDep,
   polyjuice_validator_dep: config.polyjuice_validator.cell_dep as CellDep,
   state_validator_lock_dep: config.state_validator.cell_dep as CellDep,
   poa_state_dep: config.poa_state.cell_dep as CellDep,

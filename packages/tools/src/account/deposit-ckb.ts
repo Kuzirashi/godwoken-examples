@@ -29,9 +29,11 @@ import { Godwoken } from "@godwoken-examples/godwoken";
 import {
   getBalanceByScriptHash,
   ethAddressToScriptHash,
+  tronAddressToScriptHash,
 } from "../modules/godwoken";
+import TronWeb from 'tronweb';
 
-async function sendTx(
+async function sendTxToEthAddress(
   deploymentConfig: DeploymentConfig,
   fromAddress: string,
   amount: string,
@@ -64,7 +66,81 @@ async function sendTx(
     serializedArgs
   );
 
-  // console.log("deposit lock:", depositLock);
+  console.log("deposit lock:", depositLock);
+
+  const outputCell: Cell = {
+    cell_output: {
+      capacity: "0x" + BigInt(amount).toString(16),
+      lock: depositLock,
+    },
+    data: "0x",
+  };
+
+  txSkeleton = txSkeleton.update("outputs", (outputs) => {
+    return outputs.push(outputCell);
+  });
+
+  txSkeleton = await common.injectCapacity(
+    txSkeleton,
+    [fromAddress],
+    BigInt(amount)
+  );
+
+  txSkeleton = await common.payFeeByFeeRate(
+    txSkeleton,
+    [fromAddress],
+    BigInt(1000)
+  );
+
+  txSkeleton = common.prepareSigningEntries(txSkeleton);
+
+  const message: HexString = txSkeleton.get("signingEntries").get(0)!.message;
+  const content: HexString = key.signRecoverable(message, privateKey);
+
+  const tx = sealTransaction(txSkeleton, [content]);
+
+  const rpc = new RPC(ckbUrl);
+  const txHash: Hash = await rpc.send_transaction(tx);
+
+  return txHash;
+}
+
+async function sendTxToTronAddress(
+  deploymentConfig: DeploymentConfig,
+  fromAddress: string,
+  amount: string,
+  layer2LockArgs: HexString,
+  indexer: Indexer,
+  privateKey: HexString,
+  ckbUrl: string
+): Promise<Hash> {
+  let txSkeleton = TransactionSkeleton({ cellProvider: indexer });
+
+  const ownerLock: Script = parseAddress(fromAddress);
+  const ownerLockHash: Hash = utils.computeScriptHash(ownerLock);
+  const layer2Lock: Script = {
+    code_hash: deploymentConfig.tron_account_lock.code_hash,
+    hash_type: deploymentConfig.tron_account_lock.hash_type as "data" | "type",
+    args: getRollupTypeHash() + layer2LockArgs.slice(2),
+  };
+  const depositLockArgs: DepositLockArgs = getDepositLockArgs(
+    ownerLockHash,
+    layer2Lock
+  );
+  const l2ScriptHash = utils.computeScriptHash(depositLockArgs.layer2_lock);
+  console.log(`Layer 2 lock script hash: ${l2ScriptHash}`, {
+    layer2Lock
+  });
+  
+  console.log("Your address:", l2ScriptHash.slice(0, 42));
+
+  const serializedArgs: HexString = serializeArgs(depositLockArgs);
+  const depositLock: Script = generateDepositLock(
+    deploymentConfig,
+    serializedArgs
+  );
+
+  console.log("deposit lock:", depositLock);
 
   const outputCell: Cell = {
     cell_output: {
@@ -110,30 +186,60 @@ export const run = async (program: commander.Command) => {
 
   const privateKey = program.privateKey;
   const ckbAddress = privateKeyToCkbAddress(privateKey);
+
   const ethAddress = program.ethAddress || privateKeyToEthAddress(privateKey);
+  const tronAddress = program.tronAddress;
 
   const godwoken = new Godwoken(program.parent.godwokenRpc);
+  // TE1DxnCpr77xUCi1BQbhAKmqyxRSC64fvQ
+  // 0x2C422313B1080E4FB2ED37600AB39822F7A707BB
+  if (tronAddress) {
+    console.log("using tron address:", tronAddress);
+  } else {
+    console.log("using eth address:", ethAddress);
+  }
 
-  console.log("using eth address:", ethAddress);
   console.log("using ckb address:", ckbAddress);
   
   try {
-    const txHash: Hash = await sendTx(
-      deploymentConfig,
-      ckbAddress,
-      program.capacity,
-      ethAddress.toLowerCase(),
-      indexer,
-      privateKey,
-      program.rpc
-    );
+    let txHash: Hash;
+
+    console.log(deploymentConfig);
+
+    if (tronAddress) {
+      txHash = await sendTxToTronAddress(
+        deploymentConfig,
+        ckbAddress,
+        program.capacity,
+        tronAddress.toLowerCase(),
+        indexer,
+        privateKey,
+        program.rpc
+      );
+    } else {
+      txHash = await sendTxToEthAddress(
+        deploymentConfig,
+        ckbAddress,
+        program.capacity,
+        ethAddress.toLowerCase(),
+        indexer,
+        privateKey,
+        program.rpc
+      );
+    }
 
     console.log("txHash:", txHash);
 
     console.log("--------- wait for tx deposit ----------");
 
     await waitTxCommitted(txHash, ckbRpc);
-    const accountScriptHash = ethAddressToScriptHash(ethAddress);
+    let accountScriptHash: string;
+
+    if (tronAddress) {
+      accountScriptHash = tronAddressToScriptHash(tronAddress);
+    } else {   
+      accountScriptHash = ethAddressToScriptHash(ethAddress);
+    }
     const currentBalance = await getBalanceByScriptHash(
       godwoken,
       1,

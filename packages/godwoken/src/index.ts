@@ -220,6 +220,38 @@ export class GodwokenUtils {
     return `0x${keccak256(buf).toString("hex")}`;
   }
 
+  generateTransactionMessageToSignTron(
+    raw_l2tx: RawL2Transaction,
+    sender_script_hash: Hash,
+    receiver_script_hash: Hash
+  ): Hash {
+    const message = this.generateTransactionMessageWithoutPrefixToSign(
+      raw_l2tx,
+      sender_script_hash,
+      receiver_script_hash
+    );
+    const prefix_buf = Buffer.from(`\x19TRON Signed Message:\n32`);
+    const buf = Buffer.concat([
+      prefix_buf,
+      Buffer.from(message.slice(2), "hex"),
+    ]);
+    return `0x${keccak256(buf).toString("hex")}`;
+  }
+
+  generateTransactionMessageToSignNoPrefix(
+    raw_l2tx: RawL2Transaction,
+    sender_script_hash: Hash,
+    receiver_script_hash: Hash
+  ): Hash {
+    const message = this.generateTransactionMessageWithoutPrefixToSign(
+      raw_l2tx,
+      sender_script_hash,
+      receiver_script_hash
+    );
+
+    return message;
+  }
+
   generateWithdrawalMessageWithoutPrefixToSign(
     raw_request: RawWithdrawalRequest
   ): Hash {
