@@ -69,7 +69,7 @@ async function indexerReady(indexer: any, updateProgress=((_indexerTip: bigint, 
 
 export async function initConfigAndSync(
   ckbRpc: string,
-  indexerPath: string
+  indexerPath: string | undefined
 ): Promise<Indexer> {
   if (!env.LUMOS_CONFIG_NAME && !env.LUMOS_CONFIG_FILE) {
     env.LUMOS_CONFIG_NAME = "AGGRON4";
@@ -81,6 +81,15 @@ export async function initConfigAndSync(
   }
 
   initializeConfig();
+
+  if (indexerPath == null) {
+    const rpc = new RPC(ckbRpc);
+    const ckbGenesisHeader = await rpc.get_header_by_number("0x0");
+    const ckbGenesisHash = ckbGenesisHeader.hash;
+    indexerPath = `./indexer-data-path/${ckbGenesisHash}`;
+  }
+
+  console.log("current indexer data path:", indexerPath);
 
   indexerPath = path.resolve(indexerPath);
   const indexer = new Indexer(ckbRpc, indexerPath);
