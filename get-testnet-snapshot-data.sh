@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
-target="./indexer-data-path/0x10639e0895502b5688a6be8cf69460d76541bfa4821629d86d62ba0aae3f9606"
+indexerPath="./indexer-data-path/0x10639e0895502b5688a6be8cf69460d76541bfa4821629d86d62ba0aae3f9606"
+snapshot=20210730-nervos-lumos-indexer-0.16.0-testnet-snapshot.7z
 
-if [ ! -f ./20210730-nervos-lumos-indexer-0.16.0-testnet-snapshot.7z ]; then
-	curl -O https://s3.amazonaws.com/cdn.ckb.tools/snapshots/20210730-nervos-lumos-indexer-0.16.0-testnet-snapshot.7z -L
+if [ ! -f ./$snapshot ]; then
+	curl -O https://s3.amazonaws.com/cdn.ckb.tools/snapshots/$snapshot -L
 fi
 
-if [ -d $target ]; then
-	rm -r $target
+if [ -d $indexerPath ]; then
+	rm -r $indexerPath
 fi
 
-7z x 20210730-nervos-lumos-indexer-0.16.0-testnet-snapshot.7z -oindexer-data-path/0x10639e0895502b5688a6be8cf69460d76541bfa4821629d86d62ba0aae3f9606 -aoa
+7z x $snapshot -o$indexerPath -aoa
