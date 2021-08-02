@@ -208,7 +208,7 @@ export async function waitForWithdraw(
     const godwokenCkbBalance = await godwoken.getBalance(1, address);
     console.log(`ckb balance in godwoken is: ${godwokenCkbBalance}`);
     if (originBalance !== godwokenCkbBalance) {
-      console.log(`withdrawal success!`);
+      console.log(`Success! Withdrawal request sent. You need to wait now for challenge period duration to unlock the funds.`);
       return;
     }
     await asyncSleep(loopInterval * 1000);
