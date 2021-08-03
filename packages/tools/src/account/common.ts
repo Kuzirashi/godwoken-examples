@@ -67,10 +67,7 @@ async function indexerReady(indexer: any, updateProgress=((_indexerTip: bigint, 
 	});
 }
 
-export async function initConfigAndSync(
-  ckbRpc: string,
-  indexerPath: string | undefined
-): Promise<Indexer> {
+export function initConfig() {
   if (!env.LUMOS_CONFIG_NAME && !env.LUMOS_CONFIG_FILE) {
     env.LUMOS_CONFIG_NAME = "AGGRON4";
     console.log("LUMOS_CONFIG_NAME:", env.LUMOS_CONFIG_NAME);
@@ -81,6 +78,13 @@ export async function initConfigAndSync(
   }
 
   initializeConfig();
+}
+
+export async function initConfigAndSync(
+  ckbRpc: string,
+  indexerPath: string | undefined
+): Promise<Indexer> {
+  initConfig();
 
   if (indexerPath == null) {
     const rpc = new RPC(ckbRpc);
@@ -189,39 +193,17 @@ export async function waitForDeposit(
 
 export async function waitForWithdraw(
   godwoken: Godwoken,
-  accountScriptHash: Hash,
-  originBalance: bigint,
-  timeout: number = 300,
-  loopInterval = 5
+  accountScriptHash: Hash
 ) {
-  let accountId = undefined;
-  for (let i = 0; i < timeout; i += loopInterval) {
-    console.log(
-      `waiting for layer 2 block producer withdrawal ... ${i} seconds`
-    );
+  const accountId = await godwoken.getAccountIdByScriptHash(accountScriptHash);
 
-    if (!accountId) {
-      accountId = await godwoken.getAccountIdByScriptHash(accountScriptHash);
-      if (!accountId) {
-        await asyncSleep(loopInterval * 1000);
-        continue;
-      }
-      console.log("Your account id:", accountId);
-    }
+  console.log("Your account id:", accountId);
 
-    const address = accountScriptHash.slice(0, 42);
-    const godwokenCkbBalance = await godwoken.getBalance(1, address);
-    console.log(`ckb balance in godwoken is: ${godwokenCkbBalance}`);
-    if (originBalance !== godwokenCkbBalance) {
-      console.log(`Success! Withdrawal request sent. You need to wait now for challenge period duration to unlock the funds.`);
-      return;
-    }
-    await asyncSleep(loopInterval * 1000);
-  }
+  const address = accountScriptHash.slice(0, 42);
+  const godwokenCkbBalance = await godwoken.getBalance(1, address);
+  console.log(`ckb balance in godwoken is: ${godwokenCkbBalance}`);
 
-  console.log(
-    `timeout for waiting withdraw success in godwoken, please check with account id: ${accountId} by your self.`
-  );
+  console.log(`Success! Withdrawal request sent. You need to wait now for the challenge period duration to pass to unlock the funds.`);
 }
 
 export async function waitForTransfer(
