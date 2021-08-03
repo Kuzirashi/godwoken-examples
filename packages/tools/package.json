@@ -15,8 +15,6 @@
     "@ckb-lumos/rpc": "^0.16.0",
     "@godwoken-examples/godwoken": "^0.0.1",
     "@polyjuice-provider/base": "0.0.1-rc6",
-    "@polyjuice-provider/godwoken": "0.0.1-rc6",
-    "@polyjuice-provider/web3": "0.0.1-rc6",
     "ckb-js-toolkit": "^0.10.2",
     "commander": "^6.2.1",
     "eth-lib": "^0.1.29",
@@ -32,8 +30,5 @@
   "devDependencies": {
     "@iarna/toml": "^2.2.5",
     "@types/secp256k1": "^4.0.2"
-  },
-  "resolutions": {
-    "@polyjuice-provider/godwoken": "0.0.1-rc6"
   }
 }

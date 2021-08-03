@@ -533,7 +533,7 @@
     web3 "^1.3.4"
     xhr2-cookies "^1.1.0"
 
-"@polyjuice-provider/godwoken@0.0.1-rc6", "@polyjuice-provider/godwoken@^0.0.1-rc6":
+"@polyjuice-provider/godwoken@^0.0.1-rc6":
   version "0.0.1-rc6"
   resolved "https://registry.yarnpkg.com/@polyjuice-provider/godwoken/-/godwoken-0.0.1-rc6.tgz#7a88a38fd3665d2cabf5faa800b27d18a713c572"
   integrity sha512-IjtnqKKefiDFnBumZC76YZu6mX8vV95rwrCCtbtDPk5mXJaHx4Th7NnFwrEayU/Ms7m12RDAEbs4TP9qd5Nxlg==
@@ -542,17 +542,6 @@
     ckb-js-toolkit "^0.9.3"
     immutable "^4.0.0-rc.12"
     keccak256 "^1.0.2"
-
-"@polyjuice-provider/web3@0.0.1-rc6":
-  version "0.0.1-rc6"
-  resolved "https://registry.yarnpkg.com/@polyjuice-provider/web3/-/web3-0.0.1-rc6.tgz#280ca03dd0caa8a93b82ca8ad904656ece99537e"
-  integrity sha512-edHAupXCNTMReP5c1ZOPMCNQfo/KsZfuWib3pn1rJ28mE609GWUjyHWb72k23cjovI9KYWN5fD2PTCO0hZ2MqQ==
-  dependencies:
-    "@polyjuice-provider/base" "0.0.1-rc6"
-    buffer "^6.0.3"
-    encoding "^0.1.13"
-    web3 "^1.4.0"
-    xhr2-cookies "^1.1.0"
 
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
@@ -4799,7 +4788,7 @@ web3-utils@1.4.0:
     underscore "1.12.1"
     utf8 "3.0.0"
 
-web3@1.4.0, web3@^1.3.4, web3@^1.4.0:
+web3@1.4.0, web3@^1.3.4:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/web3/-/web3-1.4.0.tgz#717c01723226daebab9274be5cb56644de860688"
   integrity sha512-faT3pIX+1tuo+wqmUFQPe10MUGaB1UvRYxw9dmVJFLxaRAIfXErSilOf3jFhSwKbbPNkwG0bTiudCLN9JgeS7A==
