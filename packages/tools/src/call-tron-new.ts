@@ -1,27 +1,14 @@
 import { HexNumber, HexString, utils } from "@ckb-lumos/base";
-import { L2Transaction, RawL2Transaction, Godwoken as GodwokenOld, core, toBuffer } from "../../godwoken/lib";
-import { Polyjuice } from "../../polyjuice/lib";
+import { Godwoken as GodwokenOld, core, toBuffer } from "../../godwoken/lib";
 import { _generateTransactionMessageToSign, _generateTransactionMessageToSignNoPrefix, _generateTransactionMessageToSignTron } from "./common";
-import { ethAddressToScriptHash, tronAddressToScriptHash } from "./modules/godwoken";
-import { Signer, Godwoker } from '@polyjuice-provider/base';
-import { Godwoken } from '@polyjuice-provider/godwoken';
-import { sign } from 'eth-lib/lib/account';
+import { tronAddressToScriptHash } from "./modules/godwoken";
+import { Godwoker } from '@polyjuice-provider/base';
 import { NormalizeRawL2Transaction } from "../../godwoken/lib/normalizer";
 const Web3 = require('web3');
-const { PolyjuiceAccounts } = require("@polyjuice-provider/web3");
-const { getAccountIdByContractAddress } = require('./modules/godwoken');
-import TronWeb from 'tronweb';
 const keccak256 = require("keccak256");
+import { utils as ethersUtils } from "ethers";
 
-const ACCOUNT_PRIVATE_KEY = '5789d39fd2ce1978a857fa3cf86555ae8fc8b12a8106191b7f4a6b43808b134f'; // Replace this with your Ethereum private key with funds on Layer 2.
-
-const tronWeb = new TronWeb({
-  fullHost: 'https://api.trongrid.io',
-  headers: { "TRON-PRO-API-KEY": '87c0092c-72e2-4208-a078-44083a1a0267' },
-  privateKey: ACCOUNT_PRIVATE_KEY
-});
-
-console.log(TronWeb.Trx);
+const ACCOUNT_PRIVATE_KEY = '0x5789d39fd2ce1978a857fa3cf86555ae8fc8b12a8106191b7f4a6b43808b134f'; // Replace this with your Ethereum private key with funds on Layer 2.
 
 export type EthTransaction = {
   from: HexString;
@@ -41,19 +28,11 @@ export type L2TransactionArgs = {
 
 /**
  * BEFORE USING THIS SCRIPT MAKE SURE TO REPLACE:
- * - <YOUR_CONTRACT_ABI>
+ * - TRON_ADDRESS
  * - <YOUR_CONTRACT_ADDRESS>
- * - CONTRACT_ADDRESS variable value
- * - YOUR_READ_FUNCTION_NAME method name
- * - YOUR_WRITE_FUNCTION_NAME method name
- */
-
-/**
- * LUMOS_CONFIG_FILE=/home/kuzi/projects/godwoken-kicker/godwoken/deploy/lumos-config.json node ./packages/tools/lib/account-cli.js deposit -c 4000000 -p 0x6cd5e7be2f6504aa5ae7c0c04178d8f47b7cfc63b71d95d9e6282f5b090431bf --tron-address 0x2C422313B1080E4FB2ED37600AB39822F7A707BB
  */
 
 const TRON_ADDRESS = '0x2C422313B1080E4FB2ED37600AB39822F7A707BB';
-// const ETH_ADDRESS = '0xD173313A51f8fc37BcF67569b463abd89d81844f';
 
 const CONTRACT_ABI = [
     {
@@ -88,24 +67,16 @@ const CONTRACT_ABI = [
       "type": "function"
     }
 ];
-// const CONTRACT_ADDRESS = '0xf09c30CF236609FF90871824Eb088ceBea632fE3';
-// const GODWOKEN_RPC_URL = 'http://godwoken-testnet-web3-rpc.ckbapp.dev';
-// const polyjuiceConfig = {
-//     rollupTypeHash: '0x9b260161e003972c0b699939bc164cfdcfce7fd40eb9135835008dd7e09d3dae',
-//     ethAccountLockCodeHash: '0xfcf093a5f1df4037cea259d49df005e0e7258b4f63e67233eda5b376b7fd2290',
-//     web3Url: GODWOKEN_RPC_URL
-// };
-const CONTRACT_ADDRESS = '0xA48651c0E4561E585728D5B213fA0d6897A88c22'; // devnet
-const GODWOKEN_RPC_URL = 'http://localhost:8024';
+const CONTRACT_ADDRESS = '0x3E3b7616812290B60ceEcF412C9CDf941Da841A9';
+const GODWOKEN_RPC_URL = 'http://godwoken-testnet-web3-rpc.ckbapp.dev';
 const polyjuiceConfig = {
-    rollupTypeHash: '0x942df23916e205fbeed2949c76f9524f9d4ffe0b54ff11cdb8f66507bc5f4552',
-    ethAccountLockCodeHash: '0x7e5909ed17a3cbd0d2038a4c714a281fbc236d993ef3a6de5cb762c7b73b36e9',
+    rollupTypeHash: '0x4cc2e6526204ae6a2e8fcf12f7ad472f41a1606d5b9624beebd215d780809f6a',
+    ethAccountLockCodeHash: '0xdeec13a7b8e100579541384ccaf4b5223733e4a5483c3aec95ddc4c1d5ea5b22',
     web3Url: GODWOKEN_RPC_URL
 };
 
 const web3 = new Web3();
 const godwoken = new GodwokenOld(GODWOKEN_RPC_URL);
-const godwokenNew = new Godwoken(GODWOKEN_RPC_URL);
 const godwoker = new Godwoker(GODWOKEN_RPC_URL, {
   godwoken: {
     eth_account_lock: {
@@ -115,14 +86,6 @@ const godwoker = new Godwoker(GODWOKEN_RPC_URL, {
     rollup_type_hash: polyjuiceConfig.rollupTypeHash
   }
 });
-const polyjuice = new Polyjuice(godwoken as any, {
-  validator_script_hash: '0xab49f8edc5001ae21f17ecea94b13e66c8b4f4e7b2bfca3959213ad1b37a657e',
-  sudt_id: 1,
-  creator_account_id: 3,
-});
-
-web3.eth.accounts = new PolyjuiceAccounts(polyjuiceConfig);
-const account = web3.eth.accounts.wallet.add(ACCOUNT_PRIVATE_KEY);
 
 function toArrayBuffer(buf: any) {
   let ab = new ArrayBuffer(buf.length);
@@ -132,32 +95,6 @@ function toArrayBuffer(buf: any) {
   }
   return ab;
 }
-
-async function getAccountIdByEthAddress(address: string) {
-  const scriptHash = ethAddressToScriptHash(address);
-  const id: number | undefined = await godwoken.getAccountIdByScriptHash(scriptHash);
-
-  return id;
-}
-
-// async function assembleRawL2Transaction(eth_tx: EthTransaction) {
-//     const from_id = await getAccountIdByEthAddress(eth_tx.from) // the godwoken account id for your tron address;
-//     const to_id: string = await getAccountIdByContractAddress(godwoken, eth_tx.to) // your deployed contract account id;
-
-//     console.log(eth_tx, {
-//       from_id
-//     });
-
-//     if (!from_id || !eth_tx.gas || !eth_tx.gasPrice) {
-//       throw new Error('assembleRawL2Transaction has missing properties');
-//     }
-
-//     const nonce = await godwoken.getNonce(from_id); // your godwoken account nonce;
-
-//     const tx = polyjuice.generateTransaction(from_id, parseInt(to_id, 10), BigInt(eth_tx.gas), BigInt(eth_tx.gasPrice), BigInt(eth_tx.value), eth_tx.data, nonce);
-
-//     return tx;
-// }
 
 function TxConfigValueTypeToString(value: any) {
   if (typeof value === "string") {
@@ -292,12 +229,7 @@ async function generateMessageFromEthTransactionTron(tx: any) {
   return message;
 }
 
-async function readCall() {
-  const signedTx2 = await TronWeb.Trx.signString('0x123', ACCOUNT_PRIVATE_KEY, false);
-  console.log({
-    signedTx2
-  });
-
+async function writeCall() {
   const contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
 
   const callData = contract.methods.set(125).encodeABI()
@@ -326,6 +258,8 @@ async function readCall() {
     polyjuiceTx
   });
 
+  const signingKey = new ethersUtils.SigningKey(ACCOUNT_PRIVATE_KEY);
+
   const messageToSign = await generateMessageFromEthTransactionTron(_tx);
 
   console.log({
@@ -333,8 +267,14 @@ async function readCall() {
   });
 
 
-  const _signature = sign(messageToSign, ACCOUNT_PRIVATE_KEY);
-  const signature = godwoker.packSignature(_signature);
+  const _signature = signingKey.signDigest(messageToSign);
+  const signatureHex = [
+      '0x',
+      _signature.r.substring(2),
+      _signature.s.substring(2),
+      Number(_signature.v).toString(16)
+  ].join('');
+  const signature = godwoker.packSignature(signatureHex);
 
   const l2_tx = { raw: polyjuiceTx, signature: signature };
 
@@ -350,8 +290,6 @@ async function readCall() {
     signedTx
   });
 
-  // const signature = '0xe72931e0267fa3e571c5d3d074232dc7e6c68dda675befc28bc0e20c45bd46386b1d46b2d5b2cdc8f96d0df14189a78510e1c772c75703bd00a6b3944e1acd3c1b';
-
   console.log({
     _signature,
     signature
@@ -360,9 +298,10 @@ async function readCall() {
   const result = await godwoker.gw_submitSerializedL2Transaction(signedTx.rawTransaction);
   console.log(result);
 
-  await godwoker.waitForTransactionReceipt(signedTx.transactionHash);
+  console.log(`Waiting for tx receipt doesn't work for Tron calls, but if transaction was submitted then you can check the smart-contract state after 120s and the state should be changed successfully.`);
+  // await godwoker.waitForTransactionReceipt(signedTx.transactionHash);
 
-  console.log('Receipt received');
+  // console.log('Receipt received');
 }
 
 function calcPolyjuiceTxHash(tx: any) {
@@ -370,41 +309,9 @@ function calcPolyjuiceTxHash(tx: any) {
   return tx_hash;
 }
 
-// async function writeCall() {
-//     const contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
-
-//     const tx = contract.methods.YOUR_WRITE_FUNCTION_NAME().send(
-//         {
-//             from: account.address,
-//             to: '0x' + new Array(40).fill(0).join(''),
-//             gas: 6000000,
-//             gasPrice: '0',
-//         }
-//     );
-
-//     tx.on('transactionHash', (hash: string) => console.log(`Write call transaction hash: ${hash}`));
-
-//     const receipt = await tx;
-
-//     console.log('Write call transaction receipt: ', receipt);
-// }
-
 (async () => {
-    // const balance = BigInt(await web3.eth.getBalance(account.address));
-
-    // if (balance === 0n) {
-    //     console.log(`Insufficient balance. Can't issue a smart contract call. Please deposit funds to your Ethereum address: ${account.address}`);
-    //     return;
-    // }
-
     console.log('Calling contract...');
 
-    // Check smart contract state before state change.
-    await readCall();
-
     // Change smart contract state.
-    // await writeCall();
-
-    // Check smart contract state after state change.
-    // await readCall();
+    await writeCall();
 })();
