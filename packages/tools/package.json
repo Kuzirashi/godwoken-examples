@@ -12,6 +12,7 @@
     "@ckb-lumos/hd": "^0.16.0",
     "@ckb-lumos/helpers": "^0.16.0",
     "@ckb-lumos/indexer": "^0.16.0",
+    "@ckb-lumos/rpc": "^0.16.0",
     "@godwoken-examples/godwoken": "^0.0.1",
     "@polyjuice-provider/base": "0.0.1-rc5",
     "@polyjuice-provider/godwoken": "0.0.1-rc5",
