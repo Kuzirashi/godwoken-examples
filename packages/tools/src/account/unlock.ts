@@ -151,7 +151,9 @@ async function unlockInner(
     const withdrawal_block_number = withdrawal_lock_args
       .getWithdrawalBlockNumber()
       .toLittleEndianBigUint64();
-    console.log("withdrawal_block_number", withdrawal_block_number);
+    console.log("withdrawal_block_number", withdrawal_block_number, {
+      last_finalized_block_number
+    });
     if (withdrawal_block_number > last_finalized_block_number) {
       console.log("[INFO]: withdrawal cell not finalized");
       continue;

@@ -127,12 +127,7 @@ export async function waitTxCommitted(
     console.log(`tx ${txHash} is ${status}, waited for ${index} seconds`);
     await asyncSleep(loopInterval * 1000);
     if (status === "committed") {
-      const block = await ckbRpc.get_block(txWithStatus.tx_status.block_hash);
-
       console.log(`tx ${txHash} is committed!`);
-      console.log(JSON.stringify(txWithStatus, null, 2));
-      console.log('block');
-      console.log(parseInt(block.header.number, 16));
       return;
     }
   }

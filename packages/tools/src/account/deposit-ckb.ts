@@ -31,7 +31,6 @@ import {
   ethAddressToScriptHash,
   tronAddressToScriptHash,
 } from "../modules/godwoken";
-import TronWeb from 'tronweb';
 
 async function sendTxToEthAddress(
   deploymentConfig: DeploymentConfig,
@@ -191,8 +190,7 @@ export const run = async (program: commander.Command) => {
   const tronAddress = program.tronAddress;
 
   const godwoken = new Godwoken(program.parent.godwokenRpc);
-  // TE1DxnCpr77xUCi1BQbhAKmqyxRSC64fvQ
-  // 0x2C422313B1080E4FB2ED37600AB39822F7A707BB
+
   if (tronAddress) {
     console.log("using tron address:", tronAddress);
   } else {
@@ -203,8 +201,6 @@ export const run = async (program: commander.Command) => {
   
   try {
     let txHash: Hash;
-
-    console.log(deploymentConfig);
 
     if (tronAddress) {
       txHash = await sendTxToTronAddress(
