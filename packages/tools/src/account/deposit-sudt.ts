@@ -120,9 +120,17 @@ async function sendTx(
   return [txHash, layer2SudtScriptHash];
 }
 
+const MINIMUM_DEPOSIT_CAPACITY = 1000n * 100000000n;
+
 export const run = async (program: commander.Command) => {
   const ckbRpc = new RPC(program.rpc);
   const indexerPath = program.indexerPath;
+
+  const capacity: bigint = BigInt(program.capacity);
+  if (capacity < MINIMUM_DEPOSIT_CAPACITY) {
+    throw new Error(`Minimum deposit capacity required: ${MINIMUM_DEPOSIT_CAPACITY}.`);
+  }
+
   const indexer = await initConfigAndSync(program.rpc, indexerPath);
 
 //   const queryOptions = {
@@ -154,11 +162,6 @@ export const run = async (program: commander.Command) => {
   const ethAddress = program.ethAddress || privateKeyToEthAddress(privateKey);
   console.log("using eth address:", ethAddress);
   console.log("using ckb address:", ckbAddress);
-  
-  const capacity: bigint = BigInt(program.capacity);
-  if (capacity < BigInt(40000000000)) {
-    throw new Error("capacity can't less than 400 CKB");
-  }
 
   const godwokenRpc = program.parent.godwokenRpc;
   const godwoken = new Godwoken(godwokenRpc);

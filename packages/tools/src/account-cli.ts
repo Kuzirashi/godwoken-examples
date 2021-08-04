@@ -59,7 +59,7 @@ program
     "-l, --eth-address <args>",
     "Eth address (layer2 lock args, using --private-key value to calculate if not provided)"
   )
-  .option("-c, --capacity <capacity>", "capacity in shannons", "40000000000")
+  .option("-c, --capacity <capacity>", "capacity in shannons", "100000000000")
   .action(depositSudtRun);
 
 program
