@@ -15,6 +15,7 @@ import {
 } from "@godwoken-examples/godwoken/lib/normalizer";
 import { SerializeSUDTArgs } from "@godwoken-examples/godwoken/schemas";
 import { Reader } from "ckb-js-toolkit";
+import TronWeb from 'tronweb';
 import { getRollupTypeHash } from "./deposit";
 
 import * as secp256k1 from "secp256k1";
@@ -232,10 +233,12 @@ export function ethAddressToScriptHash(ethAddress: HexString): Hash {
   return scriptHash;
 }
 
-export function tronAddressToScriptHash(tronAddress: HexString): Hash {
+export function tronAddressToScriptHash(tronAddress: string): Hash {
+  const layer2LockArgs = tronAddressBase58ToHex(tronAddress);
+
   const script = {
     ...deploymentConfig.tron_account_lock,
-    args: ROLLUP_TYPE_HASH + tronAddress.slice(2),
+    args: ROLLUP_TYPE_HASH + layer2LockArgs.slice(2),
   };
 
   const scriptHash = utils.computeScriptHash(script);
@@ -305,4 +308,26 @@ export async function getAccountIdByContractAddress(godwoken: Godwoken, _address
     )
       throw error;
   }
+}
+
+function tronByte2hexStr(byte: number) {
+  const hexByteMap = "0123456789ABCDEF";
+  let str = "";
+  str += hexByteMap.charAt(byte >> 4);
+  str += hexByteMap.charAt(byte & 0x0f);
+  return str;
+}
+
+function tronByteArray2hexStr(byteArray: []) {
+  let str = "";
+
+  for (let i = 0; i < byteArray.length; i++) {
+    str += tronByte2hexStr(byteArray[i]);
+  }
+
+  return str;
+}
+
+export function tronAddressBase58ToHex(tronAddressEncoded: string) {
+  return `0x${tronByteArray2hexStr(TronWeb.utils.base58.decode58(tronAddressEncoded)).toLowerCase()}`;
 }

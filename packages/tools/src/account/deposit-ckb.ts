@@ -30,6 +30,7 @@ import {
   getBalanceByScriptHash,
   ethAddressToScriptHash,
   tronAddressToScriptHash,
+  tronAddressBase58ToHex,
 } from "../modules/godwoken";
 
 async function sendTxToEthAddress(
@@ -108,13 +109,14 @@ async function sendTxToTronAddress(
   deploymentConfig: DeploymentConfig,
   fromAddress: string,
   amount: string,
-  layer2LockArgs: HexString,
+  tronAddress: string,
   indexer: Indexer,
   privateKey: HexString,
   ckbUrl: string
 ): Promise<Hash> {
   let txSkeleton = TransactionSkeleton({ cellProvider: indexer });
 
+  const layer2LockArgs: HexString = tronAddressBase58ToHex(tronAddress);
   const ownerLock: Script = parseAddress(fromAddress);
   const ownerLockHash: Hash = utils.computeScriptHash(ownerLock);
   const layer2Lock: Script = {
@@ -131,7 +133,7 @@ async function sendTxToTronAddress(
     layer2Lock
   });
   
-  console.log("Your address:", l2ScriptHash.slice(0, 42));
+  console.log("Your Tron address as hex string (decoded from base58):", l2ScriptHash.slice(0, 42));
 
   const serializedArgs: HexString = serializeArgs(depositLockArgs);
   const depositLock: Script = generateDepositLock(
@@ -184,7 +186,6 @@ export const run = async (program: commander.Command) => {
   const ckbRpc = new RPC(program.rpc);
   const indexerPath = program.indexerPath;
 
-
   if (BigInt(program.capacity) < MINIMUM_DEPOSIT_CAPACITY) {
     throw new Error(`Minimum deposit capacity required: ${MINIMUM_DEPOSIT_CAPACITY}.`);
   }
@@ -206,6 +207,8 @@ export const run = async (program: commander.Command) => {
   }
 
   console.log("using ckb address:", ckbAddress);
+
+  console.log(`rollup type hash: ${getRollupTypeHash()}`);
   
   try {
     let txHash: Hash;
@@ -215,7 +218,7 @@ export const run = async (program: commander.Command) => {
         deploymentConfig,
         ckbAddress,
         program.capacity,
-        tronAddress.toLowerCase(),
+        tronAddress,
         indexer,
         privateKey,
         program.rpc

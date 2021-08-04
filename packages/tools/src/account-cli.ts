@@ -39,7 +39,7 @@ program
   )
   .option(
     "-t, --tron-address <args>",
-    "Tron address"
+    "Tron address in base58 format (eg. TFrSJCrSJai8H2Kc32TP3nEzuWsXu8YnUJ)"
   )
   .action(depositRun);
 
