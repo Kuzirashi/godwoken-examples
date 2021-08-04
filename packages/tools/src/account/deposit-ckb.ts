@@ -178,9 +178,17 @@ async function sendTxToTronAddress(
   return txHash;
 }
 
+const MINIMUM_DEPOSIT_CAPACITY = 1000n * 100000000n;
+
 export const run = async (program: commander.Command) => {
   const ckbRpc = new RPC(program.rpc);
   const indexerPath = program.indexerPath;
+
+
+  if (BigInt(program.capacity) < MINIMUM_DEPOSIT_CAPACITY) {
+    throw new Error(`Minimum deposit capacity required: ${MINIMUM_DEPOSIT_CAPACITY}.`);
+  }
+
   const indexer = await initConfigAndSync(program.rpc, indexerPath);
 
   const privateKey = program.privateKey;
