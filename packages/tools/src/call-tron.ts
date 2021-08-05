@@ -1,14 +1,20 @@
 import { HexNumber, HexString, utils } from "@ckb-lumos/base";
 import { Godwoken as GodwokenOld, core, toBuffer } from "../../godwoken/lib";
 import { _generateTransactionMessageToSign, _generateTransactionMessageToSignNoPrefix, _generateTransactionMessageToSignTron } from "./common";
-import { tronAddressToScriptHash } from "./modules/godwoken";
+import { tronAddressHexToScriptHash } from "./modules/godwoken";
 import { Godwoker } from '@polyjuice-provider/base';
 import { NormalizeRawL2Transaction } from "../../godwoken/lib/normalizer";
 const Web3 = require('web3');
 const keccak256 = require("keccak256");
 import { utils as ethersUtils } from "ethers";
+import { recoverAddress } from "ethers/lib/utils";
 
 const ACCOUNT_PRIVATE_KEY = '0x5789d39fd2ce1978a857fa3cf86555ae8fc8b12a8106191b7f4a6b43808b134f'; // Replace this with your Ethereum private key with funds on Layer 2.
+const TRON_ADDRESS = '0x2C422313B1080E4FB2ED37600AB39822F7A707BB';
+
+// const ACCOUNT_PRIVATE_KEY = '0x45777e4dbd55d4f4db25b7f3b4c7d8ac38677b4e6a4d74030b787ef63c2a29bb'; // Replace this with your Ethereum private key with funds on Layer 2.
+// const TRON_ADDRESS = '0x4088F10C8D7EC48D19035D8C0709397E2FEC18C3';
+
 
 export type EthTransaction = {
   from: HexString;
@@ -32,7 +38,6 @@ export type L2TransactionArgs = {
  * - <YOUR_CONTRACT_ADDRESS>
  */
 
-const TRON_ADDRESS = '0x2C422313B1080E4FB2ED37600AB39822F7A707BB';
 
 const CONTRACT_ABI = [
     {
@@ -136,7 +141,7 @@ function transactionConfigToPolyjuiceEthTransaction(tx: any) {
 }
 
 async function getAccountIdByTronAddress(address: string) {
-  const scriptHash = tronAddressToScriptHash(address);
+  const scriptHash = tronAddressHexToScriptHash(address);
   console.log('getAccountIdByTronAddress', {
     scriptHash
   });
@@ -212,7 +217,7 @@ function generateTransactionMessageToSignTron(raw_l2tx: any, _sender_script_hash
 async function generateMessageFromEthTransactionTron(tx: any) {
   const { from, to } = tx;
   const to_id = await godwoker.allTypeEthAddressToAccountId(to);
-  const sender_script_hash = tronAddressToScriptHash(from);
+  const sender_script_hash = tronAddressHexToScriptHash(from);
   console.log('generateMessageFromEthTransactionTron', {
     sender_script_hash
   });
@@ -274,6 +279,18 @@ async function writeCall() {
       _signature.s.substring(2),
       Number(_signature.v).toString(16)
   ].join('');
+
+  const recovered = recoverAddress(messageToSign, _signature);
+  console.log({
+    recovered
+  });
+
+  // console.log({
+  //   signatureHex,
+  //   vOriginal: Number(_signature.v).toString(16),
+  //   vModified: (Number(_signature.v) - 27).toString(16)
+  // });
+
   const signature = godwoker.packSignature(signatureHex);
 
   const l2_tx = { raw: polyjuiceTx, signature: signature };

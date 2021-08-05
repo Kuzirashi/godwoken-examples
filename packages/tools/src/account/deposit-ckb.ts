@@ -29,7 +29,7 @@ import { Godwoken } from "@godwoken-examples/godwoken";
 import {
   getBalanceByScriptHash,
   ethAddressToScriptHash,
-  tronAddressToScriptHash,
+  tronAddressBase58ToScriptHash,
   tronAddressBase58ToHex,
 } from "../modules/godwoken";
 
@@ -133,7 +133,8 @@ async function sendTxToTronAddress(
     layer2Lock
   });
   
-  console.log("Your Tron address as hex string (decoded from base58):", l2ScriptHash.slice(0, 42));
+  console.log("Your Tron address as hex string (decoded from base58):", layer2LockArgs);
+  console.log("Your Polyjuice address:", l2ScriptHash.slice(0, 42));
 
   const serializedArgs: HexString = serializeArgs(depositLockArgs);
   const depositLock: Script = generateDepositLock(
@@ -243,7 +244,7 @@ export const run = async (program: commander.Command) => {
     let accountScriptHash: string;
 
     if (tronAddress) {
-      accountScriptHash = tronAddressToScriptHash(tronAddress);
+      accountScriptHash = tronAddressBase58ToScriptHash(tronAddress);
     } else {   
       accountScriptHash = ethAddressToScriptHash(ethAddress);
     }

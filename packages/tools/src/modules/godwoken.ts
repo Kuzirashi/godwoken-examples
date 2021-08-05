@@ -233,12 +233,17 @@ export function ethAddressToScriptHash(ethAddress: HexString): Hash {
   return scriptHash;
 }
 
-export function tronAddressToScriptHash(tronAddress: string): Hash {
-  const layer2LockArgs = tronAddressBase58ToHex(tronAddress);
+export function tronAddressBase58ToScriptHash(tronAddress: string): Hash {
+  return tronAddressHexToScriptHash(tronAddressBase58ToHex(tronAddress));
+}
 
+export function tronAddressHexToScriptHash(tronAddress: string): Hash {
+  console.log('tronAddressHexToScriptHash', {
+    tronAddress
+  });
   const script = {
     ...deploymentConfig.tron_account_lock,
-    args: ROLLUP_TYPE_HASH + layer2LockArgs.slice(2),
+    args: ROLLUP_TYPE_HASH + tronAddress.slice(2),
   };
 
   const scriptHash = utils.computeScriptHash(script);
@@ -310,24 +315,6 @@ export async function getAccountIdByContractAddress(godwoken: Godwoken, _address
   }
 }
 
-function tronByte2hexStr(byte: number) {
-  const hexByteMap = "0123456789ABCDEF";
-  let str = "";
-  str += hexByteMap.charAt(byte >> 4);
-  str += hexByteMap.charAt(byte & 0x0f);
-  return str;
-}
-
-function tronByteArray2hexStr(byteArray: []) {
-  let str = "";
-
-  for (let i = 0; i < byteArray.length; i++) {
-    str += tronByte2hexStr(byteArray[i]);
-  }
-
-  return str;
-}
-
 export function tronAddressBase58ToHex(tronAddressEncoded: string) {
-  return `0x${tronByteArray2hexStr(TronWeb.utils.base58.decode58(tronAddressEncoded)).toLowerCase()}`;
+  return `0x${TronWeb.utils.bytes.byteArray2hexStr(TronWeb.utils.crypto.decode58Check(tronAddressEncoded)).slice(2)}`;
 }
