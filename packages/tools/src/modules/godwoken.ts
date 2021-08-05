@@ -238,9 +238,6 @@ export function tronAddressBase58ToScriptHash(tronAddress: string): Hash {
 }
 
 export function tronAddressHexToScriptHash(tronAddress: string): Hash {
-  console.log('tronAddressHexToScriptHash', {
-    tronAddress
-  });
   const script = {
     ...deploymentConfig.tron_account_lock,
     args: ROLLUP_TYPE_HASH + tronAddress.slice(2),
