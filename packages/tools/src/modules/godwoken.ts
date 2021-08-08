@@ -301,7 +301,7 @@ export async function getAccountIdByContractAddress(godwoken: Godwoken, _address
   try {
     // assume it is normal contract address, thus an godwoken-short-address
     const script_hash = await godwoken.getScriptHashByShortAddress(_address);
-    return (await godwoken.getAccountIdByScriptHash(script_hash))?.toString();
+    return (await godwoken.getAccountIdByScriptHash(script_hash)).toString();
   } catch (error) {
     if (
       !JSON.stringify(error).includes(
