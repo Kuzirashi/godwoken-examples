@@ -3,7 +3,7 @@ import {
   deploymentConfig,
 } from "../modules/deployment-config";
 import { HexString, Cell, Script, Hash, utils } from "@ckb-lumos/base";
-import { Indexer } from "@ckb-lumos/indexer";
+import { Indexer } from "@ckb-lumos/base";
 import {
   TransactionSkeleton,
   parseAddress,
@@ -56,7 +56,10 @@ async function sendTxToEthAddress(
     layer2Lock
   );
   const l2ScriptHash = utils.computeScriptHash(depositLockArgs.layer2_lock);
-  console.log(`Layer 2 lock script hash: ${l2ScriptHash}`);
+  
+  if (process.env.DEBUG) {
+    console.log(`Layer 2 lock script hash: ${l2ScriptHash}`);
+  }
 
   console.log("Your address:", l2ScriptHash.slice(0, 42));
 
@@ -66,7 +69,9 @@ async function sendTxToEthAddress(
     serializedArgs
   );
 
-  console.log("deposit lock:", depositLock);
+  if (process.env.DEBUG) {
+    console.log("deposit lock:", depositLock);
+  }
 
   const outputCell: Cell = {
     cell_output: {
@@ -129,9 +134,11 @@ async function sendTxToTronAddress(
     layer2Lock
   );
   const l2ScriptHash = utils.computeScriptHash(depositLockArgs.layer2_lock);
-  console.log(`Layer 2 lock script hash: ${l2ScriptHash}`, {
-    layer2Lock
-  });
+  if (process.env.DEBUG) {
+    console.log(`Layer 2 lock script hash: ${l2ScriptHash}`, {
+      layer2Lock
+    });
+  }
   
   console.log("Your Tron address as hex string (decoded from base58):", layer2LockArgs);
   console.log("Your Polyjuice address:", l2ScriptHash.slice(0, 42));
@@ -142,7 +149,9 @@ async function sendTxToTronAddress(
     serializedArgs
   );
 
-  console.log("deposit lock:", depositLock);
+  if (process.env.DEBUG) {
+    console.log("deposit lock:", depositLock);
+  }
 
   const outputCell: Cell = {
     cell_output: {
@@ -181,17 +190,17 @@ async function sendTxToTronAddress(
   return txHash;
 }
 
-const MINIMUM_DEPOSIT_CAPACITY = 1000n * 100000000n;
+const MINIMUM_DEPOSIT_CAPACITY = 500n * 100000000n;
 
 export const run = async (program: commander.Command) => {
   const ckbRpc = new RPC(program.rpc);
-  const indexerPath = program.indexerPath;
+  const ckbIndexerURL = program.indexer;
 
   if (BigInt(program.capacity) < MINIMUM_DEPOSIT_CAPACITY) {
     throw new Error(`Minimum deposit capacity required: ${MINIMUM_DEPOSIT_CAPACITY}.`);
   }
 
-  const indexer = await initConfigAndSync(program.rpc, indexerPath);
+  const indexer = await initConfigAndSync(program.rpc, ckbIndexerURL);
 
   const privateKey = program.privateKey;
   const ckbAddress = privateKeyToCkbAddress(privateKey);
@@ -202,14 +211,14 @@ export const run = async (program: commander.Command) => {
   const godwoken = new Godwoken(program.parent.godwokenRpc);
 
   if (tronAddress) {
-    console.log("using tron address:", tronAddress);
+    console.log("Using Tron address:", tronAddress);
   } else {
-    console.log("using eth address:", ethAddress);
+    console.log("Using ETH address:", ethAddress);
   }
 
-  console.log("using ckb address:", ckbAddress);
+  console.log("Using CKB address:", ckbAddress);
 
-  console.log(`rollup type hash: ${getRollupTypeHash()}`);
+  console.log(`Rollup type hash: ${getRollupTypeHash()}`);
   
   try {
     let txHash: Hash;
@@ -236,9 +245,9 @@ export const run = async (program: commander.Command) => {
       );
     }
 
-    console.log("txHash:", txHash);
+    console.log("Transaction hash:", txHash);
 
-    console.log("--------- wait for tx deposit ----------");
+    console.log("--------- wait for deposit transaction ----------");
 
     await waitTxCommitted(txHash, ckbRpc);
     let accountScriptHash: string;

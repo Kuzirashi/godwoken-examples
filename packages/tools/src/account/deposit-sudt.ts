@@ -2,8 +2,8 @@ import {
   DeploymentConfig,
   deploymentConfig,
 } from "../modules/deployment-config";
-import { HexString, Script, Hash, utils, HashType } from "@ckb-lumos/base";
-import { Indexer } from "@ckb-lumos/indexer";
+import { HexString, Script, Hash, utils } from "@ckb-lumos/base";
+import { Indexer } from "@ckb-lumos/base";
 import {
   TransactionSkeleton,
   parseAddress,
