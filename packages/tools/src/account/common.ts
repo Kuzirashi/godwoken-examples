@@ -145,7 +145,7 @@ export async function waitForDeposit(
   let sudtId: number | undefined = 1;
 
   if (sudtId === 1) {
-    console.log(`CKB balance in Godwoken is: ${originBalance} Shannons`);
+    console.log(`CKB balance in Godwoken is: ${originBalance} Shannons.`);
   }
 
   for (let i = 0; i < timeout; i += loopInterval) {
@@ -168,18 +168,18 @@ export async function waitForDeposit(
         await asyncSleep(loopInterval * 1000);
         continue;
       }
-      console.log("Your sudt id:", sudtId);
+      console.log("Your sUDT id:", sudtId);
     }
 
     const address = accountScriptHash.slice(0, 42);
     const godwokenCkbBalance = await godwoken.getBalance(1, address);
 
     if (originBalance !== godwokenCkbBalance) {
-      console.log(`CKB balance in Godwoken is: ${godwokenCkbBalance} Shannons`);
+      console.log(`CKB balance in Godwoken is: ${godwokenCkbBalance} Shannons.`);
 
       if (sudtId !== 1) {
         const godwokenSudtBalance = await godwoken.getBalance(sudtId!, address);
-        console.log(`sudt balance in godwoken is: ${godwokenSudtBalance}`);
+        console.log(`sUDT balance in Godwoken is: ${godwokenSudtBalance}.`);
       }
       console.log(`Deposit success!`);
       return;

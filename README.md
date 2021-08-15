@@ -1,6 +1,6 @@
 # Godwoken Examples
 
-**Caution: This branch uses ckb-indexer instance instead of download blockchain data locally. Right now only account.cli deposit ckb command works.**
+**Caution: This branch uses ckb-indexer instead of downloading blockchain data locally. Right now only account-cli deposit and deposit-sudt commands work.**
 
 ## Install dependencies & Build
 

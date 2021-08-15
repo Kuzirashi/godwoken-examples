@@ -16,6 +16,8 @@ if (!process.env.LUMOS_CONFIG_FILE) {
   defaultGodwokenRpc = "http://godwoken-testnet-web3-rpc.ckbapp.dev";
 }
 
+const DEFAULT_LOCAL_INDEXER_URL = "http://127.0.0.1:8116";
+
 program.option(
   "-g, --godwoken-rpc <rpc>",
   "godwoken rpc path, defualt to http://127.0.0.1:8119, and LUMOS_CONFIG_FILE not provided, default to http://godwoken-testnet-web3-rpc.ckbapp.dev",
@@ -28,7 +30,7 @@ program
   .requiredOption("-p, --private-key <privateKey>", "private key to use")
   .requiredOption("-c --capacity <capacity>", "capacity in shannons")
   .option("-r, --rpc <rpc>", "ckb rpc path", "http://127.0.0.1:8114")
-  .option("-i, --indexer <indexer>", "ckb-indexer URL", "http://127.0.0.1:8116")
+  .option("-i, --indexer <indexer>", "ckb-indexer URL", DEFAULT_LOCAL_INDEXER_URL)
   .option(
     "-l, --eth-address <args>",
     "Eth address (layer2 lock args, using --private-key value to calculate if not provided)"
@@ -46,11 +48,7 @@ program
   .requiredOption("-m --amount <amount>", "sudt amount")
   .requiredOption("-s --sudt-script-args <l1 sudt script args>", "sudt amount")
   .option("-r, --rpc <rpc>", "ckb rpc path", "http://127.0.0.1:8114")
-  .option(
-    "-d, --indexer-path <path>",
-    `indexer path (default: "./indexer-data-path/<ckb genesis hash>")`,
-    undefined
-  )
+  .option("-i, --indexer <indexer>", "ckb-indexer URL", DEFAULT_LOCAL_INDEXER_URL)
   .option(
     "-l, --eth-address <args>",
     "Eth address (layer2 lock args, using --private-key value to calculate if not provided)"
