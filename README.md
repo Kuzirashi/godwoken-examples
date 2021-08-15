@@ -1,7 +1,5 @@
 # Godwoken Examples
 
-**Caution: This branch uses ckb-indexer instead of downloading blockchain data locally. Right now only account-cli deposit and deposit-sudt commands work.**
-
 ## Install dependencies & Build
 
 ```bash
@@ -52,10 +50,6 @@ Run `node ./packages/tools/lib/account-cli.js --help` to see how to `deposit`, `
 LUMOS_CONFIG_FILE=<your lumos config file path> node ./packages/tools/lib/account-cli.js --help # for devnet
 node ./packages/tools/lib/account-cli.js --help # for testnet
 ```
-
-### Notes
-
-If you switched to a new CKB chain, you should switch to a new indexer path `--indexer-path <your new path>` or just delete `indexer-data` dir.
 
 ## Polyjuice CLI
 
