@@ -13,17 +13,10 @@ import {
   } from '@ckb-lumos/base';
   import { RPC } from '@ckb-lumos/rpc';
   import axios from 'axios';
+import { logger } from './logger';
  
   function asyncSleep(timeout: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, timeout));
-  }
-
-  const logger = {
-    debug: (...args: any[]) => {
-      if (process.env.DEBUG) {
-        console.debug(...args);
-      }
-    }
   }
   
   export enum ScriptType {

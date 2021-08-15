@@ -6,7 +6,7 @@ import { run as depositSudtRun } from "./account/deposit-sudt";
 import { getBalance } from "./account/get-balance";
 import { run as transferRun } from "./account/transfer";
 import { run as withdrawRun } from "./account/withdraw";
-// import { run as unlockRun } from "./account/unlock";
+import { run as unlockRun } from "./account/unlock";
 
 const program = new Command();
 program.version("0.0.1");
@@ -93,11 +93,6 @@ program
   .option("-s, --fee-sudt-id <fee sudt id>", "fee sudt id", "1")
   .option("-f, --fee <fee>", "fee in current sudt", "0")
   .option("-r, --rpc <rpc>", "ckb rpc path", "http://127.0.0.1:8114")
-  .option(
-    "-d, --indexer-path <path>",
-    `indexer path (default: "./indexer-data-path/<ckb genesis hash>")`,
-    undefined
-  )
   .action(withdrawRun);
 
 program
@@ -127,20 +122,16 @@ program
   )
   .action(toEthAddress);
 
-// program
-//   .command("unlock")
-//   .description("unlock withdrawal CKB / sUDT from godwoken")
-//   .requiredOption("-p, --private-key <privateKey>", "private key to use")
-//   .option(
-//     "-s, --sudt-script-args <l1 sudt script args>",
-//     "only for unlock sudt"
-//   )
-//   .option("-r, --rpc <rpc>", "ckb rpc path", "http://127.0.0.1:8114")
-//   .option(
-//     "-d, --indexer-path <path>",
-//     `indexer path (default: "./indexer-data-path/<ckb genesis hash>")`,
-//     undefined
-//   )
-//   .action(unlockRun);
+program
+  .command("unlock")
+  .description("unlock withdrawal CKB / sUDT from godwoken")
+  .requiredOption("-p, --private-key <privateKey>", "private key to use")
+  .option(
+    "-s, --sudt-script-args <l1 sudt script args>",
+    "only for unlock sudt"
+  )
+  .option("-r, --rpc <rpc>", "ckb rpc path", "http://127.0.0.1:8114")
+  .option("-i, --indexer <indexer>", "ckb-indexer URL", DEFAULT_LOCAL_INDEXER_URL)
+  .action(unlockRun);
 
 program.parse(process.argv);

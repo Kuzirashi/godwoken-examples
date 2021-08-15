@@ -1,6 +1,5 @@
 import { initializeConfig } from "@ckb-lumos/config-manager";
 import path from "path";
-import { Indexer } from "@ckb-lumos/base";
 import { CkbIndexer } from './indexer-remote';
 import { env } from "process";
 import { RPC } from "ckb-js-toolkit";
@@ -93,7 +92,7 @@ export function initConfig() {
 export async function initConfigAndSync(
   ckbRpc: string,
   ckbIndexerUrl: string
-): Promise<Indexer> {
+): Promise<CkbIndexer> {
   initConfig();
 
   const indexer = new CkbIndexer(ckbRpc, ckbIndexerUrl);
