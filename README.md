@@ -59,3 +59,11 @@ Run `node ./packages/tools/lib/polyjuice-cli.js --help` to see how to `creator c
 node ./packages/tools/lib/polyjuice-cli.js --help # for devnet
 ENABLE_TESTNET_MODE=true node ./packages/tools/lib/polyjuice-cli.js --help # for testnet
 ```
+
+## Debug
+
+If you want to debug your commands and need more information in the console, please set `DEBUG` environment variable, eg.:
+
+```sh
+DEBUG=true node ./packages/tools/lib/account-cli.js
+```
