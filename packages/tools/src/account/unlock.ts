@@ -15,7 +15,7 @@ import {
   sealTransaction,
   TransactionSkeleton,
 } from "@ckb-lumos/helpers";
-import { CellCollector, Indexer } from "@ckb-lumos/indexer";
+import { CkbIndexer, ScriptType } from "./indexer-remote";
 import { deploymentConfig } from "../modules/deployment-config";
 import {
   ROLLUP_TYPE_HASH,
@@ -34,7 +34,7 @@ import { RPC } from "@ckb-lumos/rpc";
 
 async function unlock(
   privateKey: HexString,
-  indexer: Indexer,
+  indexer: CkbIndexer,
   rpc: RPC,
   sudtScript?: Script,
   retryTime = 10
@@ -68,7 +68,7 @@ async function unlock(
  */
 async function unlockInner(
   privateKey: HexString,
-  indexer: Indexer,
+  indexer: CkbIndexer,
   rpc: RPC,
   sudtScript?: Script
 ): Promise<boolean> {
@@ -79,7 +79,7 @@ async function unlockInner(
   const withdrawalLockDep: CellDep = deploymentConfig.withdrawal_lock_dep;
 
   const ckb_address = privateKeyToCkbAddress(privateKey);
-  console.log("ckb address:", ckb_address);
+  console.log("CKB address:", ckb_address);
 
   const lock_script = parseAddress(ckb_address);
   const lock_script_hash = utils.computeScriptHash(lock_script);
@@ -87,11 +87,13 @@ async function unlockInner(
   // Ready to build L1 CKB transaction
 
   // * search rollup cell then get last_finalized_block_number from cell data (GlobalState)
-  const rollupCollector = new CellCollector(indexer, {
-    type: rollup_type_script,
+  const rollupCells = await indexer.getCells({
+      script: rollup_type_script,
+      script_type: ScriptType.type
   });
+
   let rollup_cell: Cell | undefined = undefined;
-  for await (const cell of rollupCollector.collect()) {
+  for await (const cell of rollupCells) {
     rollup_cell = cell;
     break;
   }
@@ -119,15 +121,16 @@ async function unlockInner(
   //   - last_finalized_block_number
   //   - TODO: withdrawal_block_hash (to proof the block is on current rollup)
   const withdrawal_lock = deploymentConfig.withdrawal_lock;
-  const withdrawalCollector = new CellCollector(indexer, {
+  const withdrawalCollector = indexer.collector({
     lock: {
-      code_hash: withdrawal_lock.code_hash,
-      hash_type: withdrawal_lock.hash_type,
-      args: rollup_type_hash, // prefix search
+        code_hash: withdrawal_lock.code_hash,
+        hash_type: withdrawal_lock.hash_type,
+        args: rollup_type_hash, // prefix search
     },
     type: sudtScript ? sudtScript : "empty",
     argsLen: "any",
   });
+
   const withdrawal_cells = [];
   for await (const cell of withdrawalCollector.collect()) {
     // console.log("[DEBUG]: withdrawalCell:", cell.out_point);
@@ -339,8 +342,8 @@ function getSudtCellDep(): CellDep {
 export const run = async (program: Command) => {
   const ckbUrl = program.rpc;
   const ckbRpc = new RPC(ckbUrl);
-  const indexerPath = program.indexerPath;
-  const indexer = await initConfigAndSync(ckbUrl, indexerPath);
+  const ckbIndexerURL = program.indexer;
+  const indexer = await initConfigAndSync(ckbUrl, ckbIndexerURL);
 
   const privateKey = program.privateKey;
 

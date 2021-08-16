@@ -3,7 +3,7 @@
 ## Install dependencies & Build
 
 ```bash
-yarn && yarn run build-all
+yarn && yarn build-all
 ```
 
 ## Update Tools Configs
@@ -13,7 +13,7 @@ Firstly copy config files.
 ```bash
 export SCRIPT_DEPLOY_RESULT_PATH=<your godwoken `scripts-deploy-result.json`>
 export GODWOKEN_CONFIG_PATH=<your godwoken `config.toml`>
-yarn run copy-configs
+yarn copy-configs
 ```
 
 Or copy by yourself.
@@ -21,13 +21,13 @@ Or copy by yourself.
 ```bash
 cp <your godwoken `scripts-deploy-result.json`> packages/tools/configs/scripts-deploy-result.json
 cp <your godwoken `config.toml`> packages/tools/configs/godwoken-config.toml
-yarn run convert-config-format # convert `godwoken-config.toml` to `godwoken-config.json`
+yarn convert-config-format # convert `godwoken-config.toml` to `godwoken-config.json`
 ```
 
 For testnet
 
 ```bash
-yarn run generate-testnet-configs
+yarn generate-testnet-configs
 ```
 
 ## Generate your lumos config
@@ -51,10 +51,6 @@ LUMOS_CONFIG_FILE=<your lumos config file path> node ./packages/tools/lib/accoun
 node ./packages/tools/lib/account-cli.js --help # for testnet
 ```
 
-### Notes
-
-If you switched to a new CKB chain, you should switch to a new indexer path `--indexer-path <your new path>` or just delete `indexer-data` dir.
-
 ## Polyjuice CLI
 
 Run `node ./packages/tools/lib/polyjuice-cli.js --help` to see how to `creator creator account`, `deploy contract`, `call contract`.
@@ -64,12 +60,10 @@ node ./packages/tools/lib/polyjuice-cli.js --help # for devnet
 ENABLE_TESTNET_MODE=true node ./packages/tools/lib/polyjuice-cli.js --help # for testnet
 ```
 
-## Use testnet indexer data checkpoint
+## Debug
 
-If you want to make syncing testnet indexer-data process faster you can use the following command which will download and extract checkpoint data provided by Nervos:
+If you want to debug your commands and need more information in the console, please set `DEBUG` environment variable, eg.:
 
-```
-sudo apt-get install p7zip-full
-chmod +x get-testnet-checkpoint-data.sh
-./get-testnet-checkpoint-data.sh
+```sh
+DEBUG=true node ./packages/tools/lib/account-cli.js
 ```
