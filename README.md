@@ -3,7 +3,7 @@
 ## Install dependencies & Build
 
 ```bash
-yarn && yarn run build-all
+yarn && yarn build-all
 ```
 
 ## Update Tools Configs
@@ -13,7 +13,7 @@ Firstly copy config files.
 ```bash
 export SCRIPT_DEPLOY_RESULT_PATH=<your godwoken `scripts-deploy-result.json`>
 export GODWOKEN_CONFIG_PATH=<your godwoken `config.toml`>
-yarn run copy-configs
+yarn copy-configs
 ```
 
 Or copy by yourself.
@@ -21,13 +21,13 @@ Or copy by yourself.
 ```bash
 cp <your godwoken `scripts-deploy-result.json`> packages/tools/configs/scripts-deploy-result.json
 cp <your godwoken `config.toml`> packages/tools/configs/godwoken-config.toml
-yarn run convert-config-format # convert `godwoken-config.toml` to `godwoken-config.json`
+yarn convert-config-format # convert `godwoken-config.toml` to `godwoken-config.json`
 ```
 
 For testnet
 
 ```bash
-yarn run generate-testnet-configs
+yarn generate-testnet-configs
 ```
 
 ## Generate your lumos config
