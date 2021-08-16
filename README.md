@@ -1,5 +1,15 @@
 # Godwoken Examples
 
+## Prerequisites
+
+You need [CKB Node](https://github.com/nervosnetwork/ckb) URL and [ckb-indexer](https://github.com/nervosnetwork/ckb-indexer) URL to run some commands.
+
+Thanks to using ckb-indexer there's no need to download local blockchain data again for this repository.
+
+Instead add `-i` option to some commands to pass the URL to indexer if you use remote indexer instance. If you use local ckb-indexer you probably don't need to do anything (assuming it's running on `http://localhost:8116`).
+
+Additionally, you can customize CKB Node URL by passing `-r` argument.
+
 ## Install dependencies & Build
 
 ```bash
