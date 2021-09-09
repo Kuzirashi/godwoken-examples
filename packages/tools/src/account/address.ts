@@ -35,7 +35,7 @@ export const toShortAddress = async (program: commander.Command) => {
 
 export const toEthAddress = async (program: commander.Command) => {
   const shortAddress = program.shortAddress;
-  const godwokenURL = program.parent.godwokenRpc;
+  const godwokenURL: string = program.parent.godwokenRpc;
 
   const godwoker = new Godwoker(godwokenURL, {
     godwoken: {
