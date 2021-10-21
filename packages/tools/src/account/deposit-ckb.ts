@@ -15,6 +15,7 @@ import {
   getDepositLockArgs,
   serializeArgs,
   getRollupTypeHash,
+  minimalDepositCapacity,
 } from "../modules/deposit";
 import { common } from "@ckb-lumos/common-scripts";
 import { key } from "@ckb-lumos/hd";
@@ -61,7 +62,7 @@ async function sendTxToEthAddress(
     console.log(`Layer 2 lock script hash: ${l2ScriptHash}`);
   }
 
-  console.log("Your address:", l2ScriptHash.slice(0, 42));
+  console.log("Godwoken script hash(160):", l2ScriptHash.slice(0, 42));
 
   const serializedArgs: HexString = serializeArgs(depositLockArgs);
   const depositLock: Script = generateDepositLock(
@@ -80,6 +81,13 @@ async function sendTxToEthAddress(
     },
     data: "0x",
   };
+
+  const minCapacity = minimalDepositCapacity(outputCell, depositLockArgs);
+  if (BigInt(amount) < minCapacity) {
+    throw new Error(
+      `Deposit CKB required ${minCapacity} shannons at least, provided ${amount}.`
+    );
+  }
 
   txSkeleton = txSkeleton.update("outputs", (outputs) => {
     return outputs.push(outputCell);
@@ -105,7 +113,7 @@ async function sendTxToEthAddress(
   const tx = sealTransaction(txSkeleton, [content]);
 
   const rpc = new RPC(ckbUrl);
-  const txHash: Hash = await rpc.send_transaction(tx);
+  const txHash: Hash = await rpc.send_transaction(tx, "passthrough");
 
   return txHash;
 }

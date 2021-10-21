@@ -2,6 +2,7 @@
 import { Command } from "commander";
 import {
   ethAddressToScriptHash,
+  getBalanceByScriptHash,
   privateKeyToAccountId,
   withdrawCLI,
 } from "../modules/godwoken";
@@ -64,6 +65,12 @@ export const run = async (program: Command) => {
 
   const godwoken = new Godwoken(program.parent.godwokenRpc);
   try {
+    const currentBalance = await getBalanceByScriptHash(
+      godwoken,
+      1,
+      accountScriptHash
+    );
+
     await withdrawal(
       godwoken,
       privateKey,
@@ -75,7 +82,7 @@ export const run = async (program: Command) => {
       feeAmount
     );
 
-    await waitForWithdraw(godwoken, accountScriptHash);
+    await waitForWithdraw(godwoken, accountScriptHash, currentBalance);
 
     process.exit(0);
   } catch (e) {

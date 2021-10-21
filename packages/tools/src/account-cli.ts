@@ -13,14 +13,14 @@ program.version("0.0.1");
 
 let defaultGodwokenRpc = "http://127.0.0.1:8119";
 if (!process.env.LUMOS_CONFIG_FILE) {
-  defaultGodwokenRpc = "http://godwoken-testnet-web3-rpc.ckbapp.dev";
+  defaultGodwokenRpc = "https://godwoken-testnet-web3-rpc.ckbapp.dev";
 }
 
 const DEFAULT_LOCAL_INDEXER_URL = "http://127.0.0.1:8116";
 
 program.option(
   "-g, --godwoken-rpc <rpc>",
-  "godwoken rpc path, defualt to http://127.0.0.1:8119, and LUMOS_CONFIG_FILE not provided, default to http://godwoken-testnet-web3-rpc.ckbapp.dev",
+  "godwoken rpc path, defualt to http://127.0.0.1:8119, and LUMOS_CONFIG_FILE not provided, default to https://godwoken-testnet-web3-rpc.ckbapp.dev",
   defaultGodwokenRpc
 );
 

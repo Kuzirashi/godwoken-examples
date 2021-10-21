@@ -443,7 +443,6 @@
 //     .update("witnesses", (witnesses) => {
 //       return witnesses.push(withdrawal_witness);
 //     });
-
 //   txSkeleton = await common.setupInputCell(txSkeleton, user_cell, undefined, {
 //     config: getConfig(),
 //   });
@@ -466,7 +465,7 @@
 //   const tx = sealTransaction(txSkeleton, [content]);
 //   const rpc = new RPC(program.ckbRpc);
 //   try {
-//     const txHash: Hash = await rpc.send_transaction(tx);
+//     const txHash: Hash = await rpc.send_transaction(tx, "passthrough");
 //     console.log("txHash:", txHash);
 //     process.exit(0);
 //   } catch (e) {

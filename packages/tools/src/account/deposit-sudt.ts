@@ -2,7 +2,7 @@ import {
   DeploymentConfig,
   deploymentConfig,
 } from "../modules/deployment-config";
-import { HexString, Script, Hash, utils } from "@ckb-lumos/base";
+import { HexString, Script, Hash, utils, Cell } from "@ckb-lumos/base";
 import { Indexer } from "@ckb-lumos/base";
 import {
   TransactionSkeleton,
@@ -16,6 +16,7 @@ import {
   getDepositLockArgs,
   serializeArgs,
   getRollupTypeHash,
+  minimalDepositCapacity,
 } from "../modules/deposit";
 import { common, sudt } from "@ckb-lumos/common-scripts";
 import { key } from "@ckb-lumos/hd";
@@ -60,9 +61,9 @@ async function sendTx(
     layer2Lock
   );
   const l2ScriptHash = utils.computeScriptHash(depositLockArgs.layer2_lock);
-  console.log(`Layer 2 lock script hash: ${l2ScriptHash}`);
+  console.log(`Godwoken script hash: ${l2ScriptHash}`);
 
-  console.log("Your address:", l2ScriptHash.slice(0, 42));
+  console.log("Godwoken script hash(160):", l2ScriptHash.slice(0, 42));
 
   const serializedArgs: HexString = serializeArgs(depositLockArgs);
   const depositLock: Script = generateDepositLock(
@@ -85,6 +86,14 @@ async function sendTx(
       splitChangeCell: true,
     }
   );
+
+  const outputCell: Cell = txSkeleton.get("outputs").get(0)!;
+  const minCapacity = minimalDepositCapacity(outputCell, depositLockArgs);
+  if (capacity != null && BigInt(capacity) < minCapacity) {
+    throw new Error(
+      `Deposit sUDT required ${minCapacity} shannons at least, provided ${capacity}.`
+    );
+  }
 
   const sudtScriptHash = utils.computeScriptHash(
     txSkeleton.get("outputs").get(0)!.cell_output.type!
@@ -125,7 +134,7 @@ async function sendTx(
   const tx = sealTransaction(txSkeleton, [content]);
 
   const rpc = new RPC(ckbUrl);
-  const txHash: Hash = await rpc.send_transaction(tx);
+  const txHash: Hash = await rpc.send_transaction(tx, "passthrough");
 
   return [txHash, layer2SudtScriptHash];
 }
@@ -136,7 +145,7 @@ export const run = async (program: commander.Command) => {
   const ckbRpc = new RPC(program.rpc);
   const ckbIndexerURL = program.indexer;
 
-  const capacity: bigint = BigInt(program.capacity);
+  const capacity = BigInt(program.capacity);
   if (capacity < MINIMUM_DEPOSIT_CAPACITY) {
     throw new Error(`Minimum deposit capacity required: ${MINIMUM_DEPOSIT_CAPACITY}.`);
   }
@@ -153,6 +162,13 @@ export const run = async (program: commander.Command) => {
   const godwoken = new Godwoken(godwokenRpc);
 
   try {
+    const accountScriptHash = ethAddressToScriptHash(ethAddress);
+    const currentBalance = await getBalanceByScriptHash(
+      godwoken,
+      1,
+      accountScriptHash
+    );
+
     const [txHash, layer2SudtScriptHash] = await sendTx(
       godwoken,
       deploymentConfig,
@@ -167,16 +183,9 @@ export const run = async (program: commander.Command) => {
     );
 
     console.log("Transaction hash:", txHash);
-
     console.log("--------- wait for token deposit transaction ----------");
 
     await waitTxCommitted(txHash, ckbRpc);
-    const accountScriptHash = ethAddressToScriptHash(ethAddress);
-    const currentBalance = await getBalanceByScriptHash(
-      godwoken,
-      1,
-      accountScriptHash
-    );
     await waitForDeposit(
       godwoken,
       accountScriptHash,
