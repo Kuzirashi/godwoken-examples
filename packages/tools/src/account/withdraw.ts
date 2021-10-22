@@ -82,7 +82,7 @@ export const run = async (program: Command) => {
       feeAmount
     );
 
-    await waitForWithdraw(godwoken, accountScriptHash, currentBalance);
+    await waitForWithdraw(godwoken, accountScriptHash);
 
     process.exit(0);
   } catch (e) {
